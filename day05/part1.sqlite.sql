@@ -118,6 +118,19 @@ AS (
 INSERT INTO instructions
 SELECT src, dest FROM nn;
 
+CREATE TABLE answer(c);
+INSERT INTO answer
 SELECT c FROM stacks
 WHERE idx = (SELECT MAX(idx) FROM stacks s2 WHERE s2.col = stacks.col)
 ORDER BY col ASC;
+
+WITH RECURSIVE
+    nn (n, s)
+AS (
+    SELECT 0, ''
+    UNION ALL
+    SELECT nn.n + 1, nn.s || (SELECT c FROM answer WHERE ROWID = nn.n + 1)
+    FROM nn
+    WHERE nn.n < (SELECT MAX(ROWID) FROM answer)
+)
+SELECT nn.s FROM nn ORDER BY nn.n DESC LIMIT 1;
