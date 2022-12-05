@@ -38,7 +38,7 @@ AS (
 INSERT INTO stacks
 SELECT idx, NULL, c FROM nn WHERE c != ' ' ORDER BY nn.rid DESC;
 
-INSERT INTO stacks VALUES (99999, NULL, '!');
+INSERT INTO stacks VALUES (99999, NULL, '');
 
 CREATE TABLE raw_instructions (rid INT, n INT, src INT, dest INT);
 WITH RECURSIVE
