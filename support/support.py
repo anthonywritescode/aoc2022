@@ -112,7 +112,7 @@ def submit_solution() -> int:
     args = parser.parse_args()
 
     year, day = get_year_day()
-    answer = int(sys.stdin.read())
+    answer = sys.stdin.read()
 
     print(f'answer: {answer}')
 
