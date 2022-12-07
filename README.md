@@ -57,4 +57,7 @@ BQDNWJPVJ
 + python day06/part2.py day06/input.txt
 2421
 > 2621 μs
++ python day07/part1.py day07/input.txt
+1783610
+> 18555 μs
 ```
