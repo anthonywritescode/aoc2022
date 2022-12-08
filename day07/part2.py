@@ -18,27 +18,17 @@ def compute(s: str) -> int:
     dirs = {'/'}
 
     pwd = '/'
-    in_ls = False
     for line in s.splitlines()[1:]:
-        if in_ls and line.startswith('$'):
-            in_ls = False
-        elif in_ls and line.startswith('dir '):
-            _, dirname = line.split(' ', 1)
-            dirs.add(os.path.join(pwd, dirname))
-            continue
-        elif in_ls:
-            sz, filename = line.split(' ', 1)
-            files[os.path.join(pwd, filename)] = int(sz)
-            continue
-
-        if line == '$ ls':
-            in_ls = True
-        elif line == '$ cd ..':
+        if line == '$ cd ..':
             pwd = os.path.dirname(pwd) or '/'
         elif line.startswith('$ cd'):
             pwd = os.path.join(pwd, line.split(' ', 2)[-1])
+            dirs.add(pwd)
+        elif line.startswith(('$ ls', 'dir ')):
+            continue
         else:
-            raise AssertionError(line)
+            sz, filename = line.split(' ', 1)
+            files[os.path.join(pwd, filename)] = int(sz)
 
     def size(dirname: str) -> int:
         sz = 0
