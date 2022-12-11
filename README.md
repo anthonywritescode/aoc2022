@@ -59,8 +59,31 @@ BQDNWJPVJ
 > 2621 μs
 + python day07/part1.py day07/input.txt
 1783610
-> 18555 μs
+> 17884 μs
 + python day07/part2.py day07/input.txt
 4370655
-> 18800 μs
+> 18399 μs
++ python day08/part1.py day08/input.txt
+1698
+> 18528 μs
++ python day08/part2.py day08/input.txt
+672280
+> 80456 μs
++ python day09/part1.py day09/input.txt
+6311
+> 32644 μs
++ python day09/part2.py day09/input.txt
+2482
+> 106 ms
++ python day10/part1.py day10/input.txt
+15880
+> 193 μs
++ python day10/part2.py day10/input.txt
+###..#.....##..####.#..#..##..####..##.
+#..#.#....#..#.#....#.#..#..#....#.#..#
+#..#.#....#....###..##...#..#...#..#...
+###..#....#.##.#....#.#..####..#...#.##
+#....#....#..#.#....#.#..#..#.#....#..#
+#....####..###.#....#..#.#..#.####..###
+> 426 μs
 ```
