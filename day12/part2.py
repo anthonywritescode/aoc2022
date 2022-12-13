@@ -11,8 +11,8 @@ import support
 INPUT_TXT = os.path.join(os.path.dirname(__file__), 'input.txt')
 
 MAPPED = {
-    'S': chr(ord('a') - 1),
-    'E': chr(ord('z') + 1),
+    'S': 'a',
+    'E': 'z',
 }
 
 
