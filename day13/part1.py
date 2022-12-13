@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import ast
-import enum
 import itertools
 import os.path
 
@@ -12,36 +11,29 @@ import support
 
 INPUT_TXT = os.path.join(os.path.dirname(__file__), 'input.txt')
 
-Result = enum.Enum('Result', 'EQ GOOD BAD')
-
 ListLike = int | list['ListLike']
 
 
-def compare(lhs: ListLike, rhs: ListLike) -> Result:
+def compare(lhs: ListLike, rhs: ListLike) -> int:
     if isinstance(lhs, int) and not isinstance(rhs, int):
         lhs = [lhs]
     elif not isinstance(lhs, int) and isinstance(rhs, int):
         rhs = [rhs]
 
     if isinstance(lhs, int) and isinstance(rhs, int):
-        if lhs < rhs:
-            return Result.GOOD
-        elif lhs == rhs:
-            return Result.EQ
-        else:
-            return Result.BAD
+        return lhs - rhs
     elif isinstance(lhs, list) and isinstance(rhs, list):
         for a, b in itertools.zip_longest(lhs, rhs):
             if a is None:
-                return Result.GOOD
+                return -1
             elif b is None:
-                return Result.BAD
+                return 1
 
             compared = compare(a, b)
-            if compared is not Result.EQ:
+            if compared != 0:
                 return compared
-
-        return Result.EQ
+        else:
+            return 0
     else:
         raise AssertionError('unreachable')
 
@@ -54,8 +46,7 @@ def compute(s: str) -> int:
         l1 = ast.literal_eval(l1_s)
         l2 = ast.literal_eval(l2_s)
 
-        r = compare(l1, l2)
-        if r is not Result.BAD:
+        if compare(l1, l2) <= 0:
             ret += i
 
     return ret
