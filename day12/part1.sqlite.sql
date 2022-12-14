@@ -1,6 +1,6 @@
 -- our puzzle input
 CREATE TABLE input (s STRING);
-INSERT INTO input VALUES (TRIM(readfile('input2.txt'), char(10)));
+INSERT INTO input VALUES (TRIM(readfile('input.txt'), char(10)));
 
 CREATE TABLE coords (y INT, x INT, c VARCHAR, beginning BIT, ending BIT);
 WITH RECURSIVE
@@ -26,99 +26,64 @@ CREATE TABLE deltas (dy INT, dx INT);
 INSERT INTO deltas VALUES (1, 0), (-1, 0), (0, 1), (0, -1);
 
 WITH RECURSIVE
-    nn (it, todo, seen, answer)
+    nn (it, todo, seen)
 AS (
-    SELECT
-        0,
-        json_array(json_array(y, x, 0)),
-        -- placeholder value so it doesn't get converted to scalar
-        json_array(json_array(-1, -1)),
-        0
-        FROM coords WHERE beginning = 1
+    SELECT 0, json_array(json_array(y, x, 0)), json_array()
+    FROM coords WHERE beginning = 1
     UNION
     SELECT
         nn.it + 1,
         (
-            SELECT json_group_array(value)
+            SELECT json_group_array(json(value))
             FROM (
-                -- remove lowest
-                SELECT j.value FROM json_each(nn.todo) j
-                WHERE j.key != (
-                    SELECT o.key FROM (
-                        SELECT j2.key, json_extract(j2.value, '$[2]')
-                        FROM json_each(nn.todo) j2
-                        ORDER BY json_extract(j2.value, '$[2]') ASC
-                        LIMIT 1
-                    ) o
-                )
-                UNION
-                -- extend rest
-                SELECT json_array(
-                    json_extract(j.value, '$[0]') + deltas.dy,
-                    json_extract(j.value, '$[1]') + deltas.dx,
-                    json_extract(j.value, '$[2]') + 1
-                )
-                FROM json_each(nn.todo) j, deltas
-                INNER JOIN coords cand ON
-                    json_extract(j.value, '$[0]') + deltas.dy = cand.y AND
-                    json_extract(j.value, '$[1]') + deltas.dx = cand.x
-                INNER JOIN coords curr ON
-                    json_extract(j.value, '$[0]') = curr.y AND
-                    json_extract(j.value, '$[1]') = curr.x AND
-                    (UNICODE(cand.c) - UNICODE(curr.c)) <= 1
-                WHERE
-                    j.key = (
-                        SELECT o.key FROM (
-                            SELECT j2.key, json_extract(j2.value, '$[2]')
-                            FROM json_each(nn.todo) j2
-                            ORDER BY json_extract(j2.value, '$[2]') ASC
-                            LIMIT 1
-                        ) o
+                SELECT value, json_extract(value, '$[2]') FROM (
+                    -- remove lowest
+                    SELECT j.value FROM json_each(nn.todo) j WHERE j.key > 0
+                    UNION ALL
+                    -- extend rest
+                    SELECT json_array(
+                        json_extract(nn.todo, '$[0][0]') + deltas.dy,
+                        json_extract(nn.todo, '$[0][1]') + deltas.dx,
+                        json_extract(nn.todo, '$[0][2]') + 1
                     )
-                    AND
-                    (
-                        SELECT COUNT(1) FROM json_each(nn.seen) j
-                        WHERE j.value = (
-                            SELECT o.v FROM (
-                                SELECT
-                                    json_array(
-                                        json_extract(j2.value, '$[0]'),
-                                        json_extract(j2.value, '$[1]')
-                                    ) AS v,
-                                    json_extract(j2.value, '$[2]')
-                                FROM json_each(nn.todo) j2
-                                ORDER BY json_extract(j2.value, '$[2]') ASC
-                                LIMIT 1
-                            ) o
-                        )
-                    ) = 0
+                    FROM deltas
+                    INNER JOIN coords cand ON
+                        json_extract(nn.todo, '$[0][0]') + deltas.dy = cand.y AND
+                        json_extract(nn.todo, '$[0][1]') + deltas.dx = cand.x
+                    INNER JOIN coords curr ON
+                        json_extract(nn.todo, '$[0][0]') = curr.y AND
+                        json_extract(nn.todo, '$[0][1]') = curr.x AND
+                        (UNICODE(cand.c) - UNICODE(curr.c)) <= 1
+                    WHERE
+                        (
+                            SELECT COUNT(1) FROM json_each(nn.seen) j
+                            WHERE j.value = json_array(
+                                json_extract(nn.todo, '$[0][0]'),
+                                json_extract(nn.todo, '$[0][1]')
+                            )
+                        ) = 0
+                )
+                ORDER BY json_extract(value, '$[2]') ASC
             )
         ),
         (
             SELECT json_group_array(value) FROM (
                 SELECT j.value FROM json_each(nn.seen) j
                 UNION
-                SELECT o.v FROM (
-                    SELECT
-                        json_array(
-                            json_extract(j2.value, '$[0]'),
-                            json_extract(j2.value, '$[1]')
-                        ) AS v,
-                        json_extract(j2.value, '$[2]')
-                    FROM json_each(nn.todo) j2
-                    ORDER BY json_extract(j2.value, '$[2]') ASC
-                    LIMIT 1
-                ) o
+                SELECT json_array(
+                    json_extract(nn.todo, '$[0][0]'),
+                    json_extract(nn.todo, '$[0][1]')
+                )
             )
-        ),
-        (SELECT MIN(json_extract(j.value, '$[2]')) FROM json_each(nn.todo) j)
+        )
     FROM nn
-    WHERE (
-        SELECT COUNT(1) FROM json_each(nn.seen) j
-        INNER JOIN coords ON
-            json_extract(j.value, '$[0]') = coords.y AND
-            json_extract(j.value, '$[1]') = coords.x AND
-            coords.ending
-    ) = 0
+    WHERE
+        json_array(
+            json_extract(nn.todo, '$[0][0]'),
+            json_extract(nn.todo, '$[0][1]')
+        ) != (
+            SELECT json_array(coords.y, coords.x)
+            FROM coords WHERE coords.ending
+        )
 )
-SELECT nn.answer FROM nn ORDER BY nn.it DESC LIMIT 1;
+SELECT json_extract(nn.todo, '$[0][2]') FROM nn ORDER BY nn.it DESC LIMIT 1;
