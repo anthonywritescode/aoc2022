@@ -104,4 +104,10 @@ BQDNWJPVJ
 + python day13/part2.py day13/input.txt
 19716
 > 31122 μs
++ python day14/part1.py day14/input.txt
+610
+> 31320 μs
++ python day14/part2.py day14/input.txt
+27194
+> 2672 ms
 ```

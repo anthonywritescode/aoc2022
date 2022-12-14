@@ -165,6 +165,11 @@ def adjacent_8(x: int, y: int) -> Generator[tuple[int, int], None, None]:
             yield x + x_d, y + y_d
 
 
+def parse_point_comma(s: str) -> tuple[int, int]:
+    a_s, b_s = s.split(',')
+    return int(a_s), int(b_s)
+
+
 def parse_coords_int(s: str) -> dict[tuple[int, int], int]:
     coords = {}
     for y, line in enumerate(s.splitlines()):
