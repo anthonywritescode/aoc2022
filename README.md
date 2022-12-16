@@ -118,4 +118,10 @@ BQDNWJPVJ
 > 61449 μs (z3)
 13337919186981
 > 313241 ms
++ python day16/part1.py day16/input.txt
+1595
+> 5307 ms
++ python day16/part2.py day16/input.txt
+2189
+> 17886 ms
 ```
