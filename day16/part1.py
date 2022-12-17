@@ -41,25 +41,29 @@ def compute(s: str) -> int:
             if path[-1] == b:
                 break
             else:
-                todo_bfs.extend((*path, n) for n in edges[path[-1]])
+                todo_bfs.extend(
+                    (*path, n) for n in edges[path[-1]]
+                    if n not in path
+                )
         weights[(a, b)] = len(path)
         weights[(b, a)] = len(path)
 
     # time to total
     best = -1
-    todo: list[tuple[int, int, tuple[str, ...], frozenset[str]]]
-    todo = [(0, 0, ('AA',), positive_rates)]
+    todo: list[tuple[int, int, str, frozenset[str]]]
+    todo = [(0, 0, 'AA', positive_rates)]
     while todo:
-        score, time, route, possible = todo.pop()
+        score, time, current, possible = todo.pop()
+
         best = max(best, score)
 
         for p in possible:
-            needed_time = time + weights[(route[-1], p)]
+            needed_time = time + weights[(current, p)]
             if needed_time < 30:
                 todo.append((
                     score + (30 - needed_time) * rates[p],
                     needed_time,
-                    route + (p,),
+                    p,
                     possible - {p},
                 ))
 

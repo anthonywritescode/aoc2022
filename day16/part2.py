@@ -41,34 +41,35 @@ def compute(s: str) -> int:
             if path[-1] == b:
                 break
             else:
-                todo_bfs.extend((*path, n) for n in edges[path[-1]])
+                todo_bfs.extend(
+                    (*path, n) for n in edges[path[-1]]
+                    if n not in path
+                )
         weights[(a, b)] = len(path)
         weights[(b, a)] = len(path)
 
     # time to total
     best: dict[frozenset[str], int] = {}
-    todo: list[tuple[int, int, tuple[str, ...], frozenset[str]]]
-    todo = [(0, 0, ('AA',), positive_rates)]
+    todo: list[tuple[int, int, str, frozenset[str]]]
+    todo = [(0, 0, 'AA', frozenset())]
     while todo:
-        score, time, route, possible = todo.pop()
+        score, time, current, seen = todo.pop()
 
-        route_k = frozenset(route) - {'AA'}
-        best_val = best.setdefault(route_k, score)
-        best[route_k] = max(best_val, score)
+        best[seen] = max(best.get(seen, score), score)
 
-        for p in possible:
-            needed_time = time + weights[(route[-1], p)]
+        for p in positive_rates - seen:
+            needed_time = time + weights[(current, p)]
             if needed_time < 26:
                 todo.append((
                     score + (26 - needed_time) * rates[p],
                     needed_time,
-                    route + (p,),
-                    possible - {p},
+                    p,
+                    seen | {p},
                 ))
 
     return max(
-        best[k1] + best[k2]
-        for k1, k2 in itertools.combinations(best, r=2)
+        v1 + v2
+        for (k1, v1), (k2, v2) in itertools.combinations(best.items(), r=2)
         if not k1 & k2
     )
 
