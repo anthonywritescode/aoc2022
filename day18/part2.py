@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import os.path
-import sys
 from typing import Generator
 
 import pytest
@@ -42,13 +41,6 @@ def compute(s: str) -> int:
     count = 0
     coords = set()
 
-    min_x = sys.maxsize
-    max_x = -sys.maxsize
-    min_y = sys.maxsize
-    max_y = -sys.maxsize
-    min_z = sys.maxsize
-    max_z = -sys.maxsize
-
     for line in s.splitlines():
         x, y, z = map(int, line.split(','))
         count += 6
@@ -57,18 +49,13 @@ def compute(s: str) -> int:
                 count -= 2
         coords.add((x, y, z))
 
-        min_x = min(min_x, x)
-        max_x = max(max_x, x)
-        min_y = min(min_y, y)
-        max_y = max(max_y, y)
-        min_z = min(min_z, z)
-        max_z = max(max_z, z)
+    bx, by, bz = support.bounds(coords)
 
     all_coords = {
         (x, y, z)
-        for x in range(min_x - 1, max_x + 2)
-        for y in range(min_y - 1, max_y + 2)
-        for z in range(min_z - 1, max_z + 2)
+        for x in range(bx.min - 1, bx.max + 2)
+        for y in range(by.min - 1, by.max + 2)
+        for z in range(bz.min - 1, bz.max + 2)
     }
 
     remaining = all_coords - coords

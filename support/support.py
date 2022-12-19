@@ -11,6 +11,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from typing import Generator
+from typing import Iterable
+from typing import NamedTuple
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -195,17 +197,24 @@ def parse_numbers_comma(s: str) -> list[int]:
     return [int(x) for x in s.strip().split(',')]
 
 
+class Bound(NamedTuple):
+    min: int
+    max: int
+
+    @property
+    def range(self) -> range:
+        return range(self.min, self.max + 1)
+
+
+def bounds(points: Iterable[tuple[int, ...]]) -> tuple[Bound, ...]:
+    return tuple(Bound(min(dim), max(dim)) for dim in zip(*points))
+
+
 def format_coords_hash(coords: set[tuple[int, int]]) -> str:
-    min_x = min(x for x, _ in coords)
-    max_x = max(x for x, _ in coords)
-    min_y = min(y for _, y in coords)
-    max_y = max(y for _, y in coords)
+    bx, by = bounds(coords)
     return '\n'.join(
-        ''.join(
-            '#' if (x, y) in coords else ' '
-            for x in range(min_x, max_x + 1)
-        )
-        for y in range(min_y, max_y + 1)
+        ''.join('#' if (x, y) in coords else ' ' for x in bx.range)
+        for y in by.range
     )
 
 

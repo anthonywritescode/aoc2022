@@ -9,8 +9,6 @@ import support
 
 INPUT_TXT = os.path.join(os.path.dirname(__file__), 'input.txt')
 
-PT = (500, 0)
-
 
 def compute(s: str) -> int:
     coords = set()
@@ -27,7 +25,7 @@ def compute(s: str) -> int:
                     coords.add((x, cand_y))
             prev_x, prev_y = cand_x, cand_y
 
-    max_y = max(y for _, y in coords)
+    _, by = support.bounds(coords)
 
     i = 0
 
@@ -46,7 +44,7 @@ def compute(s: str) -> int:
                 coords.add((px, py))
                 break
 
-            if py > max_y:
+            if py > by.max:
                 return i
 
         i += 1

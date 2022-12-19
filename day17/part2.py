@@ -18,15 +18,13 @@ class Piece:
 
     @functools.cached_property
     def height(self) -> int:
-        max_y = max(y for _, y in self.places)
-        min_y = min(y for _, y in self.places)
-        return max_y - min_y + 1
+        _, by = support.bounds(self.places)
+        return by.max - by.min + 1
 
     @functools.cached_property
     def width(self) -> int:
-        max_x = max(x for x, _ in self.places)
-        min_x = min(x for x, _ in self.places)
-        return max_x - min_x + 1
+        bx, _ = support.bounds(self.places)
+        return bx.max - bx.min + 1
 
     def at(self, dx: int, dy: int) -> set[tuple[int, int]]:
         return {(x + dx, y + dy) for x, y in self.places}
@@ -61,16 +59,13 @@ PIECES = tuple(
 
 
 def format_coords_hash(coords: set[tuple[int, int]]) -> str:
-    min_x = min(x for x, _ in coords)
-    max_x = max(x for x, _ in coords)
-    min_y = min(y for _, y in coords)
-    max_y = max(y for _, y in coords)
+    bx, by = support.bounds(coords)
     return '\n'.join(
         ''.join(
             '#' if (x, y) in coords else ' '
-            for x in range(min_x, max_x + 1)
+            for x in bx.range
         )
-        for y in range(max_y, min_y - 1, -1)
+        for y in range(by.max, by.min - 1, -1)
     )
 
 
@@ -167,16 +162,11 @@ def compute(s: str) -> int:
 
             if piece.at(x, y - 1) & coords:
                 coords |= piece.at(x, y)
-                max_height = max(y for _, y in coords)
+                max_height = max(y, max_height)
                 break
             else:
                 y -= 1
         i += 1
-
-    print()
-    print_coords_hash(coords)
-
-    return max(y for _, y in coords)
 
 
 INPUT_S = '''\

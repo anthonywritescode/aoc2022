@@ -14,42 +14,41 @@ def compute(s: str) -> int:
     coords = support.parse_coords_int(s)
     visible = set()
 
-    ymin, xmin = min(coords)
-    ymax, xmax = max(coords)
+    bx, by = support.bounds(coords)
 
-    for y in range(ymin, ymax + 1):
+    for y in by.range:
         # down
-        val = coords[(y, xmin)]
-        visible.add((y, xmin))
-        for x in range(xmin + 1, xmax + 1):
+        val = coords[(y, bx.min)]
+        visible.add((y, bx.min))
+        for x in range(bx.min + 1, bx.max + 1):
             cand = (y, x)
             if coords[cand] > val:
                 visible.add(cand)
                 val = coords[cand]
 
         # up
-        val = coords[(y, xmax)]
-        visible.add((y, xmax))
-        for x in range(xmax, -1, -1):
+        val = coords[(y, bx.max)]
+        visible.add((y, bx.max))
+        for x in range(bx.max, -1, -1):
             cand = (y, x)
             if coords[cand] > val:
                 visible.add(cand)
                 val = coords[cand]
 
-    for x in range(xmin, xmax + 1):
+    for x in bx.range:
         # right
-        val = coords[(ymin, x)]
-        visible.add((ymin, x))
-        for y in range(ymin + 1, ymax + 1):
+        val = coords[(by.min, x)]
+        visible.add((by.min, x))
+        for y in range(by.min + 1, by.max + 1):
             cand = (y, x)
             if coords[cand] > val:
                 visible.add(cand)
                 val = coords[cand]
 
         # left
-        val = coords[(ymax, x)]
-        visible.add((ymax, x))
-        for y in range(ymax, -1, -1):
+        val = coords[(by.max, x)]
+        visible.add((by.max, x))
+        for y in range(by.max, -1, -1):
             cand = (y, x)
             if coords[cand] > val:
                 visible.add(cand)

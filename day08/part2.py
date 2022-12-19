@@ -12,9 +12,7 @@ INPUT_TXT = os.path.join(os.path.dirname(__file__), 'input.txt')
 
 def compute(s: str) -> int:
     coords = support.parse_coords_int(s)
-
-    ymin, xmin = min(coords)
-    ymax, xmax = max(coords)
+    bx, by = support.bounds(coords)
 
     val = -1
 
@@ -22,33 +20,33 @@ def compute(s: str) -> int:
         n = coords[(y, x)]
 
         up = 0
-        for cand_y in range(y - 1, ymin - 1, -1):
+        for cand_y in range(y - 1, by.min - 1, -1):
             up += 1
             if coords[(cand_y, x)] >= n:
                 break
 
         down = 0
-        for cand_y in range(y + 1, ymax + 1):
+        for cand_y in range(y + 1, by.max + 1):
             down += 1
             if coords[(cand_y, x)] >= n:
                 break
 
         left = 0
-        for cand_x in range(x - 1, xmin - 1, -1):
+        for cand_x in range(x - 1, bx.min - 1, -1):
             left += 1
             if coords[(y, cand_x)] >= n:
                 break
 
         right = 0
-        for cand_x in range(x + 1, xmax + 1):
+        for cand_x in range(x + 1, bx.max + 1):
             right += 1
             if coords[(y, cand_x)] >= n:
                 break
 
         return up * down * left * right
 
-    for y in range(ymin, ymax + 1):
-        for x in range(xmin, xmax + 1):
+    for y in by.range:
+        for x in bx.range:
             val = max(compute(x, y), val)
 
     return val
