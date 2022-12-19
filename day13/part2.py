@@ -5,14 +5,18 @@ import ast
 import functools
 import itertools
 import os.path
+from typing import TYPE_CHECKING
 
 import pytest
 
 import support
 
+if TYPE_CHECKING:
+    from typing import TypeAlias
+
 INPUT_TXT = os.path.join(os.path.dirname(__file__), 'input.txt')
 
-ListLike = int | list['ListLike']
+ListLike: TypeAlias = "int | list['ListLike']"
 
 
 def compare(lhs: ListLike, rhs: ListLike) -> int:
