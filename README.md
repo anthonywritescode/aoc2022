@@ -136,4 +136,10 @@ BQDNWJPVJ
 + python3 day18/part2.py day18/input.txt
 2062
 > 43311 μs
++ python3 day19/part1.py day19/input.txt
+1404
+(way too slow -- used pypy3 instead)
++ python3 day19/part2.py day19/input.txt
+5880
+(way too slow -- used pypy3 instead)
 ```
