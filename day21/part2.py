@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
+import functools
 import os.path
+import sys
 
 import pytest
 from z3 import Int
@@ -18,9 +21,13 @@ OPS = {
     '/': lambda a, b: a / b,
     '*': lambda a, b: a * b,
 }
+OPS2 = {
+    **OPS,
+    '/': lambda a, b: a // b,
+}
 
 
-def compute(s: str) -> int:
+def compute_z3(s: str) -> int:
     o = Optimize()
 
     for line in s.splitlines():
@@ -40,6 +47,76 @@ def compute(s: str) -> int:
     assert o.check() == sat
 
     return o.model()[Int('humn')].as_long()
+
+
+def compute(s: str) -> int:
+    ops: dict[str, int | tuple[str, str, str]] = {}
+
+    root_left = root_right = None
+    for line in s.splitlines():
+        if line.startswith('humn:'):
+            continue
+        elif line.startswith('root:'):
+            _, root_left, _, root_right = line.split()
+        elif len(line.split()) == 4:
+            name, rest = line.split(': ')
+            op1, op, op2 = rest.split()
+            ops[name] = (op1, op, op2)
+        else:
+            name, rest = line.split(': ')
+            ops[name] = int(rest)
+
+    assert root_left is not None and root_right is not None
+
+    @functools.lru_cache
+    def _value(s: str) -> int:
+        val = ops[s]
+        if isinstance(val, int):
+            return val
+        else:
+            lhs_s, op, rhs_s = val
+            return OPS2[op](_value(lhs_s), _value(rhs_s))
+
+    right_val = _value(root_right)
+    assert isinstance(right_val, int)
+
+    expr = ops[root_left]
+    with contextlib.suppress(KeyError):  # our loop ends when we lookup humn
+        while True:
+            assert not isinstance(expr, int), expr
+            lhs_s, op, rhs_s = expr
+            try:
+                lhs = _value(lhs_s)
+            except KeyError:  # this side contains the variable!
+                rhs = _value(rhs_s)
+
+                if op == '*':
+                    right_val //= rhs
+                elif op == '/':
+                    right_val *= rhs
+                elif op == '+':
+                    right_val -= rhs
+                elif op == '-':
+                    right_val += rhs
+                else:
+                    raise AssertionError('unreachable')
+
+                expr = ops[lhs_s]
+            else:
+                if op == '-':
+                    right_val -= lhs
+                    right_val *= -1
+                elif op == '+':
+                    right_val -= lhs
+                elif op == '*':
+                    right_val //= lhs
+                elif op == '/':
+                    right_val = lhs // right_val
+                else:
+                    raise AssertionError('unreachable')
+                expr = ops[rhs_s]
+
+    return right_val
 
 
 INPUT_S = '''\
@@ -76,6 +153,11 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument('data_file', nargs='?', default=INPUT_TXT)
     args = parser.parse_args()
+
+    with open(args.data_file) as f, support.timing('z3'):
+        print(compute_z3(f.read()), file=sys.stderr)
+
+    print('Alexandra, please stop cheating', file=sys.stderr)
 
     with open(args.data_file) as f, support.timing():
         print(compute(f.read()))
