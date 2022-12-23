@@ -117,6 +117,9 @@ def compute_curses(stdscr: curses._CursesWindow, s: str) -> int:
     direction = support.Direction4.RIGHT
 
     def render() -> None:
+        if os.environ.get('MODE') != 'manual':
+            return
+
         pad = 2
 
         offsets = {

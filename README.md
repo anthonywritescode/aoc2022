@@ -157,4 +157,17 @@ BQDNWJPVJ
 Alexandra, please stop cheating
 3592056845086
 > 84305 μs
++ python day22/part1.py
+122082
+> 109 ms
++ python day22/part2.py
+134076
+> 112 ms
++ python day23/part1.py
+Alexandra, call me
+3940
+> 187 ms
++ python day23/part2.py
+990
+> 4703 ms
 ```
