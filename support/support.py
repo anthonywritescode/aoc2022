@@ -76,6 +76,7 @@ def download_input() -> int:
 
     with open('input.txt', 'w') as f:
         f.write(s)
+    os.chmod('input.txt', 0o400)
 
     lines = s.splitlines()
     if len(lines) > 10:
