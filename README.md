@@ -170,4 +170,10 @@ Alexandra, call me
 + python day23/part2.py
 990
 > 4703 ms
++ python day24/part1.py
+225
+> 3267 ms
++ python day24/part2.py
+711
+> 58674 ms
 ```
