@@ -176,4 +176,9 @@ Alexandra, call me
 + python day24/part2.py
 711
 > 58674 ms
++ python day25/part1.py
+2=20---01==222=0=0-2
+> 338 ms (z3)
+2=20---01==222=0=0-2
+> 2913 μs
 ```
